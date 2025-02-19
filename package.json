@@ -1,0 +1,20 @@
+{
+  "name": "evntaly-js",
+  "version": "1.0.1",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "Alameer Ashraf",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@nestjs/common": "^11.0.10",
+    "axios": "^1.7.9"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}

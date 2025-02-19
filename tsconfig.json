@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",               // <--- Output compiled files to dist/
+    "rootDir": "./src",               // <--- Root folder for your source
+    "declaration": true,              // <--- Generate .d.ts files
+    "declarationMap": false,
+    "module": "CommonJS",
+    "target": "ES2017",
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*"]
+}
