@@ -1,3 +1,11 @@
+<p align="center">
+  **Evntaly** is an advanced event tracking and analytics platform designed to help developers capture, analyze, and react to user interactions efficiently.
+</p>
+
+<p align="center">
+  **evntaly-js** is an SDK designed to seamlessly integrate with the Evntaly event tracking platform. It provides developers with a straightforward interface to initialize the SDK, track events, identify users, and manage tracking states within Node.js and NestJS applications.
+</p>
+
 # evntaly-js
 
 **evntaly-js** is an SDK designed to seamlessly integrate with the Evntaly event tracking platform. It provides developers with a straightforward interface to initialize the SDK, track events, identify users, and manage tracking states within Node.js and NestJS applications.
