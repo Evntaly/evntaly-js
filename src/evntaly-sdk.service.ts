@@ -46,6 +46,8 @@ export class EvntalySDKService {
       }
 
       const url = `${this.BASE_URL}/api/v1/account/check-limits/${this.developerSecret}`;
+      console.info("🔍 Checking API usage limits...");
+
       const response = await axios.get(url, {
         headers: {
           'Content-Type': 'application/json',
@@ -53,9 +55,11 @@ export class EvntalySDKService {
       });
 
       const { limitReached } = response.data;
-      return limitReached;
+      console.info(`✅ API Limit Check: Limit Reached = ${limitReached}`);
+      
+      return !limitReached;
     } catch (error) {
-      console.error('checkLimit error:', error);
+      console.error("❌ checkLimit error:", error);
       return false;
     }
   }
@@ -73,9 +77,9 @@ export class EvntalySDKService {
         return;
       }
 
-      const limitReached = await this.checkLimit();
-      if (limitReached) {
-        console.log('checkLimit returned false. Event not sent.');
+      const canTrack = await this.checkLimit();
+      if (!canTrack) {
+        console.log('❌ Tracking limit reached. Event not sent.');
         return;
       }
 

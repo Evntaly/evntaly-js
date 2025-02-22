@@ -24,7 +24,6 @@
 - **Initialization**: Set up the SDK with your developer secret and project token.
 - **Event Tracking**: Log events with detailed metadata.
 - **User Identification**: Associate actions with specific users.
-- **Usage Limits**: Check and respect API usage limits.
 - **Tracking Control**: Enable or disable event tracking as needed.
 
 ## Installation
@@ -46,6 +45,18 @@ const { EvntalySDKService } = require('evntaly-js');
 
 const evntaly = new EvntalySDKService();
 evntaly.init('YOUR_DEVELOPER_SECRET', 'YOUR_PROJECT_TOKEN');
+```
+Or In TypeScript
+
+```typescript
+import { EvntalySDKService } from 'evntaly-js';
+
+export class accountController {
+  constructor(
+    private readonly evntaly: EvntalySDKService,
+  ) {
+    this.evntaly.init('DEVELOPER_SECRET', 'PROJECT_TOKEN');
+  }
 ```
 
 ### Tracking Events
@@ -95,19 +106,6 @@ evntaly.identifyUser({
     timezone: 'America/New_York'
   }
 });
-```
-
-### Checking Usage Limits
-
-Before tracking events, it's prudent to check if you're within your usage limits:
-
-```javascript
-const canTrack = await evntaly.checkLimit();
-if (canTrack) {
-  // Proceed with tracking
-} else {
-  console.warn('Usage limit reached. Event not tracked.');
-}
 ```
 
 ### Enabling/Disabling Tracking
