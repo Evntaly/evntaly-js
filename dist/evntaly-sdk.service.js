@@ -55,7 +55,7 @@ let EvntalySDKService = (() => {
     let _classThis;
     var EvntalySDKService = _classThis = class {
         constructor() {
-            this.BASE_URL = 'https://evntaly.com/prod';
+            this.BASE_URL = 'https://app.evntaly.com/prod';
             /**
              * Developer secret, used to authorize requests.
              */
@@ -89,16 +89,18 @@ let EvntalySDKService = (() => {
                     throw new Error('Developer secret not set. Please call init() first.');
                 }
                 const url = `${this.BASE_URL}/api/v1/account/check-limits/${this.developerSecret}`;
+                console.info("🔍 Checking API usage limits...");
                 const response = await axios_1.default.get(url, {
                     headers: {
                         'Content-Type': 'application/json',
                     }
                 });
                 const { limitReached } = response.data;
-                return limitReached;
+                console.info(`✅ API Limit Check: Limit Reached = ${limitReached}`);
+                return !limitReached;
             }
             catch (error) {
-                console.error('checkLimit error:', error);
+                console.error("❌ checkLimit error:", error);
                 return false;
             }
         }
@@ -115,9 +117,9 @@ let EvntalySDKService = (() => {
                     console.log('Tracking is disabled. Event not sent.');
                     return;
                 }
-                const limitReached = await this.checkLimit();
-                if (limitReached) {
-                    console.log('checkLimit returned false. Event not sent.');
+                const canTrack = await this.checkLimit();
+                if (!canTrack) {
+                    console.log('❌ Tracking limit reached. Event not sent.');
                     return;
                 }
                 const url = `${this.BASE_URL}/api/v1/register/event`;

@@ -7,7 +7,7 @@ import axios from 'axios';
  */
 @Injectable()
 export class EvntalySDKService {
-  private readonly BASE_URL = 'https://evntaly.com/prod';
+  private readonly BASE_URL = 'https://app.evntaly.com/prod';
 
   /**
    * Developer secret, used to authorize requests.
