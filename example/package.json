@@ -9,6 +9,6 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "evntaly-js": "^1.0.5"
+    "evntaly-js": "^1.0.6"
   }
 }

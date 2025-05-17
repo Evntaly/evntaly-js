@@ -96,6 +96,7 @@ export class EvntalySDKService {
         sdkRuntime: process.version,
         operatingSystem: process.platform
       };
+      console.log(version, process.version, process.platform);
 
       const url = `${this.BASE_URL}/api/v1/register/event`;
       const response = await axios.post(url, eventData, {

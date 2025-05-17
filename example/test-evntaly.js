@@ -1,7 +1,7 @@
 const { EvntalySDKService } = require('evntaly-js');
 
 const evntaly = new EvntalySDKService();
-evntaly.init('3f50d965ea75e891', '81753c32cdb8013bbd23f0d10717');
+evntaly.init('8ad5a6de6d7f861f', '1b131c0b8d83742566a84f847eef017f');
 
 const eventNames = [
   'user_signed_up',
@@ -47,7 +47,7 @@ const userIds = Array.from({ length: 20 }, (_, i) => `user_${i + 1}`);
 
 // Function to send events
 async function sendEvents() {
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 2; i++) {
     const eventName = eventNames[Math.floor(Math.random() * eventNames.length)];
     const userId = userIds[Math.floor(Math.random() * userIds.length)];
 
@@ -77,7 +77,6 @@ async function sendEvents() {
             topic: 'Script'
           }
     );
-
     console.log(`Event ${i + 1}: ${eventName} sent for user ${userId}`);
   }
 
