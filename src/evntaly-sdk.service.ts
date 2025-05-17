@@ -93,7 +93,7 @@ export class EvntalySDKService {
       // Add context with dynamic information
       eventData.context = {
         sdkVersion: version,
-        sdkRuntime: process.version,
+        sdkRuntime: `nodejs ${process.version}`,
         operatingSystem: process.platform
       };
 
