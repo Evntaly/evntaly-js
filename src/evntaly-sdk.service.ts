@@ -91,10 +91,11 @@ export class EvntalySDKService {
       }
       
       // Add context with dynamic information
-      eventData['context']['sdkVersion'] = version;
-      eventData['context']['sdkRuntime'] = process.version;
-      eventData['context']['operatingSystem'] = process.platform;
-      console.log(version, process.version, process.platform);
+      eventData.context = {
+        sdkVersion: version,
+        sdkRuntime: process.version,
+        operatingSystem: process.platform
+      };
 
       const url = `${this.BASE_URL}/api/v1/register/event`;
       const response = await axios.post(url, eventData, {

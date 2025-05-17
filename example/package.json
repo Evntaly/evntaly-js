@@ -10,5 +10,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc -p .",
     "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "evntaly-js": "^1.1.4"
   }
 }
