@@ -1,5 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
+import { version } from '../package.json';
+
+export interface EventContext {
+  sdkVersion: string;
+  sdkRuntime?: string;
+  operatingSystem?: string;
+}
 
 /**
  * EvntalySDKService provides methods for tracking events, identifying users,
@@ -82,6 +89,13 @@ export class EvntalySDKService {
         console.log('❌ Tracking limit reached. Event not sent.');
         return;
       }
+      
+      // Add context with dynamic information
+      eventData.context = {
+        sdkVersion: version,
+        sdkRuntime: process.version,
+        operatingSystem: process.platform
+      };
 
       const url = `${this.BASE_URL}/api/v1/register/event`;
       const response = await axios.post(url, eventData, {
