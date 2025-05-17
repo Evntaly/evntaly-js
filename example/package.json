@@ -12,6 +12,6 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "evntaly-js": "^1.1.4"
+    "evntaly-js": "^1.1.5"
   }
 }
