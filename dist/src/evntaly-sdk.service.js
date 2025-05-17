@@ -58,10 +58,11 @@ let EvntalySDKService = class EvntalySDKService {
                 console.log('❌ Tracking limit reached. Event not sent.');
                 return;
             }
-            eventData['context']['sdkVersion'] = package_json_1.version;
-            eventData['context']['sdkRuntime'] = process.version;
-            eventData['context']['operatingSystem'] = process.platform;
-            console.log(package_json_1.version, process.version, process.platform);
+            eventData.context = {
+                sdkVersion: package_json_1.version,
+                sdkRuntime: process.version,
+                operatingSystem: process.platform
+            };
             const url = `${this.BASE_URL}/api/v1/register/event`;
             const response = await axios_1.default.post(url, eventData, {
                 headers: {
