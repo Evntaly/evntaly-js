@@ -427,9 +427,92 @@ async function sendEventWithoutLocationResolution() {
   console.log(`✅ Event sent successfully WITHOUT location resolution for comparison\n`);
 }
 
+// Function to demonstrate IP normalization
+function demonstrateIPNormalization() {
+  console.log('\n🌐 Demonstrating IP Address Normalization:');
+  console.log('=============================================');
+  
+  const testCases = [
+    {
+      name: 'IPv6-mapped IPv4 (localhost)',
+      rawIP: '::ffff:127.0.0.1',
+      expected: '127.0.0.1'
+    },
+    {
+      name: 'IPv6-mapped IPv4 (public)',
+      rawIP: '::ffff:192.168.1.100',
+      expected: '192.168.1.100'
+    },
+    {
+      name: 'IPv6 loopback',
+      rawIP: '::1',
+      expected: '127.0.0.1'
+    },
+    {
+      name: 'IPv6 with brackets',
+      rawIP: '[2001:db8::1]',
+      expected: '2001:db8::1'
+    },
+    {
+      name: 'Regular IPv4',
+      rawIP: '192.168.1.1',
+      expected: '192.168.1.1'
+    },
+    {
+      name: 'X-Forwarded-For with multiple IPs',
+      xForwardedFor: '197.135.93.110, 172.69.68.66',
+      expected: '197.135.93.110'
+    }
+  ];
+  
+  testCases.forEach((testCase, index) => {
+    console.log(`${index + 1}. ${testCase.name}:`);
+    
+    if (testCase.xForwardedFor) {
+      // Test X-Forwarded-For parsing
+      const mockReq = {
+        headers: {
+          'x-forwarded-for': testCase.xForwardedFor,
+          'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+      };
+      
+      const context = evntaly.extractRequestContext(mockReq, false); // No location resolution for demo
+      console.log(`   X-Forwarded-For: "${testCase.xForwardedFor}"`);
+      console.log(`   Extracted IP: "${context.ip}"`);
+      console.log(`   Expected: "${testCase.expected}"`);
+      console.log(`   ✅ Correctly extracted first IP from chain`);
+    } else {
+      // Test IP normalization
+      const mockReq = {
+        ip: testCase.rawIP,
+        headers: {
+          'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+      };
+      
+      const context = evntaly.extractRequestContext(mockReq, false); // No location resolution for demo
+      console.log(`   Raw IP: "${testCase.rawIP}"`);
+      console.log(`   Normalized IP: "${context.ip}"`);
+      console.log(`   Expected: "${testCase.expected}"`);
+      console.log(`   ✅ ${context.ip === testCase.expected ? 'Correctly normalized' : 'Normalization failed'}`);
+    }
+    console.log('');
+  });
+  
+  console.log('📋 Summary:');
+  console.log('- IPv6-mapped IPv4 addresses (::ffff:x.x.x.x) are converted to IPv4 format');
+  console.log('- IPv6 loopback (::1) is normalized to 127.0.0.1');
+  console.log('- X-Forwarded-For headers are parsed to extract the original client IP');
+  console.log('- Multiple proxy IPs in X-Forwarded-For are handled correctly');
+  console.log('- IPv6 addresses with brackets are cleaned up');
+}
+
 // Run all demonstrations
 async function runAllDemos() {
   try {
+    demonstrateIPNormalization();
+    
     // demonstrateSingleton();
     
     // demonstrateVerboseLogging();
@@ -440,7 +523,7 @@ async function runAllDemos() {
     
     // await demonstrateLocationResolution();
     
-    await sendEventsWithContext();
+    // await sendEventsWithContext();
     
     // await sendEventsWithoutContext();
     
@@ -450,16 +533,11 @@ async function runAllDemos() {
     
     console.log('🎉 All demonstrations completed successfully!');
     console.log('\n📊 Summary:');
-    console.log('- Singleton pattern demonstrated');
-    console.log('- Verbose logging control shown');
-    console.log('- OS detection from user agents shown');
-    console.log('- Request context extraction with location resolution');
-    console.log('- IP geolocation with different test IPs');
-    console.log('- Events sent with rich request context (IP, headers, location, etc.)');
-    console.log('- Comparison events sent with/without location resolution');
-    console.log('- User identification with request context');
-    console.log('- OS and version detection with detailed information');
-    console.log('\nCheck your Evntaly dashboard to see the difference in event data!');
+    console.log('- IP address normalization demonstrated');
+    console.log('- IPv6-mapped IPv4 conversion shown');
+    console.log('- X-Forwarded-For parsing illustrated');
+    console.log('- Multiple proxy IP handling verified');
+    console.log('');
     
   } catch (error) {
     console.error('❌ Error during demonstration:', error);

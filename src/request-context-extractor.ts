@@ -37,6 +37,35 @@ export interface RequestContext {
  */
 export class RequestContextExtractor {
   /**
+   * Normalize IP address to handle IPv6-mapped IPv4 and other common formats.
+   * @param ip - The raw IP address string.
+   * @returns Normalized IP address.
+   */
+  private static normalizeIP(ip: string): string {
+    if (!ip) return ip;
+    
+    // Remove whitespace
+    ip = ip.trim();
+    
+    // Handle IPv6-mapped IPv4 addresses (::ffff:192.168.1.1 -> 192.168.1.1)
+    if (ip.startsWith('::ffff:')) {
+      return ip.substring(7);
+    }
+    
+    // Handle IPv6 loopback (::1 -> 127.0.0.1)
+    if (ip === '::1') {
+      return '127.0.0.1';
+    }
+    
+    // Remove brackets from IPv6 addresses
+    if (ip.startsWith('[') && ip.endsWith(']')) {
+      return ip.substring(1, ip.length - 1);
+    }
+    
+    return ip;
+  }
+
+  /**
    * Resolve IP address to location information using IP geolocation service.
    * @param ip - The IP address to resolve.
    * @returns Promise with location information.
@@ -227,12 +256,15 @@ export class RequestContextExtractor {
     const context: RequestContext = {};
 
     if (req && req.headers) {
-      // Extract IP address
-      context.ip = req.ip || 
-                   req.connection?.remoteAddress || 
-                   req.socket?.remoteAddress ||
-                   req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
-                   req.headers['x-real-ip'];
+      // Extract IP address with priority order and normalization
+      let rawIP = req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
+                  req.headers['x-real-ip'] ||
+                  req.ip || 
+                  req.connection?.remoteAddress || 
+                  req.socket?.remoteAddress;
+
+      // Normalize the IP address
+      context.ip = this.normalizeIP(rawIP);
 
       // Extract standard headers
       context.userAgent = req.headers['user-agent'];
