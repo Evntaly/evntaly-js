@@ -2,7 +2,7 @@ const { Evntaly } = require('evntaly-js');
 
 const evntaly = Evntaly();
 
-evntaly.init('8ad5a6de6d7f861f', '1b131c0b8d83742566a84f847eef017f', { 
+evntaly.init('d95cb3653ecd26dd', '10d4414bd47bf56315acbfe4ead0', { 
   verbose: true  // Enable verbose logging
 });
 
@@ -77,7 +77,7 @@ function createMockRequest(options = {}) {
       'accept-language': options.acceptLanguage || 'en-US,en;q=0.9',
       'accept-encoding': options.acceptEncoding || 'gzip, deflate, br',
       'content-type': options.contentType || 'application/json',
-      'x-forwarded-for': options.xForwardedFor || '203.0.113.195, 198.51.100.178',
+      'x-forwarded-for': options.xForwardedFor || '197.135.93.110',
       'x-forwarded-proto': options.xForwardedProto || 'https',
       'x-forwarded-host': options.xForwardedHost || 'app.evntaly.com',
       'x-requested-with': options.xRequestedWith || 'XMLHttpRequest',
@@ -89,60 +89,66 @@ function createMockRequest(options = {}) {
   };
 }
 
-function demonstrateOSDetection() {
-  console.log('\n🖥️  Demonstrating OS Detection with Version from User Agents:');
-  console.log('================================================================');
+async function demonstrateOSAndBrowserDetection() {
+  console.log('\n🖥️  Demonstrating OS & Browser Detection with Versions from User Agents:');
+  console.log('=======================================================================');
   
   const testCases = [
     {
-      name: 'Windows 10',
+      name: 'Windows 10 + Chrome',
       userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
     },
     {
-      name: 'macOS Sonoma 14.1',
+      name: 'macOS Sonoma 14.1 + Chrome',
       userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
     },
     {
-      name: 'Ubuntu Linux',
+      name: 'Ubuntu Linux + Firefox',
       userAgent: 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/119.0'
     },
     {
-      name: 'Android 13',
+      name: 'Android 13 + Chrome Mobile',
       userAgent: 'Mozilla/5.0 (Linux; Android 13; SM-G998B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36'
     },
     {
-      name: 'iPhone iOS 17.1',
+      name: 'iPhone iOS 17.1 + Safari',
       userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Mobile/15E148 Safari/604.1'
     },
     {
-      name: 'iPad iOS 16.2',
+      name: 'iPad iOS 16.2 + Safari',
       userAgent: 'Mozilla/5.0 (iPad; CPU OS 16_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.2 Mobile/15E148 Safari/604.1'
     },
     {
-      name: 'Android 12',
-      userAgent: 'Mozilla/5.0 (Linux; Android 12; Pixel 6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36'
+      name: 'Windows 11 + Edge',
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0'
     },
     {
-      name: 'macOS Big Sur 11.7',
-      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_7_2) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15'
+      name: 'macOS + Firefox',
+      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/119.0'
+    },
+    {
+      name: 'iPhone + Chrome iOS',
+      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/120.0.6099.119 Mobile/15E148 Safari/604.1'
+    },
+    {
+      name: 'Android + Samsung Internet',
+      userAgent: 'Mozilla/5.0 (Linux; Android 13; SM-G998B) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/23.0 Chrome/115.0.0.0 Mobile Safari/537.36'
     }
   ];
   
-  testCases.forEach((testCase, index) => {
+  for (const [index, testCase] of testCases.entries()) {
     const mockReq = createMockRequest({
       userAgent: testCase.userAgent,
       ip: `192.168.1.${100 + index}`
     });
     
-    const context = evntaly.extractRequestContext(mockReq);
-    console.log(context);
+    const context = await evntaly.extractRequestContext(mockReq, false); // Disable location resolution for demo
     console.log(`${index + 1}. ${testCase.name}:`);
-    console.log(`   Detected OS: ${context.os}`);
-    console.log(`   OS Version: ${context.osVersion}`);
+    console.log(`   Detected OS: ${context.os} ${context.osVersion}`);
+    console.log(`   Detected Browser: ${context.browser} ${context.browserVersion}`);
     console.log(`   IP: ${context.ip}`);
-    // console.log(`   User Agent: ${context.userAgent.substring(0, 60)}...`);
     console.log('');
-  });
+  }
 }
 
 function demonstrateRequestContext() {
@@ -163,9 +169,9 @@ function demonstrateRequestContext() {
   });
   
   // Extract context manually with location resolution
-  console.log('📍 Extracting context with location resolution...');
+  console.log('📍 Extracting context with location, OS, and browser detection...');
   evntaly.extractRequestContext(mockReq, true).then(requestContext => {
-    console.log('📋 Extracted Request Context with Location:', JSON.stringify(requestContext, null, 2));
+    console.log('📋 Extracted Request Context with Full Detection:', JSON.stringify(requestContext, null, 2));
     console.log('');
   }).catch(error => {
     console.error('Error extracting context:', error);
@@ -214,19 +220,19 @@ async function sendEventsWithContext() {
       os: 'Windows',
       version: '10/11',
       userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      ip: '8.8.8.8' // Google DNS - US
+      ip: '197.135.93.110' // Google DNS - US
     },
     {
       os: 'macOS',
       version: '10.15 (Catalina)',
       userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      ip: '1.1.1.1' // Cloudflare DNS - US
+      ip: '197.135.93.110' // Cloudflare DNS - US
     },
     {
       os: 'Android',
       version: '13',
       userAgent: 'Mozilla/5.0 (Linux; Android 13; SM-G998B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
-      ip: '208.67.222.222' // OpenDNS - US
+      ip: '197.135.93.110' // OpenDNS - US
     }
   ];
   
@@ -272,7 +278,7 @@ async function sendEventsWithContext() {
       sessionID: '20750ebc-dabf-4fd4-9498' + userId + '-' + i,
       feature: 'test-script-with-full-context',
       topic: 'TestingFullContext'
-    }, mockReq, { resolveLocation: true }); // Enable location resolution
+    }, mockReq); // Enable location resolution
     
     console.log(`✅ Event ${i + 1}: ${eventName} sent successfully with full context for user ${userId}\n`);
   }
@@ -428,7 +434,7 @@ async function sendEventWithoutLocationResolution() {
 }
 
 // Function to demonstrate IP normalization
-function demonstrateIPNormalization() {
+async function demonstrateIPNormalization() {
   console.log('\n🌐 Demonstrating IP Address Normalization:');
   console.log('=============================================');
   
@@ -465,7 +471,7 @@ function demonstrateIPNormalization() {
     }
   ];
   
-  testCases.forEach((testCase, index) => {
+  for (const [index, testCase] of testCases.entries()) {
     console.log(`${index + 1}. ${testCase.name}:`);
     
     if (testCase.xForwardedFor) {
@@ -477,7 +483,7 @@ function demonstrateIPNormalization() {
         }
       };
       
-      const context = evntaly.extractRequestContext(mockReq, false); // No location resolution for demo
+      const context = await evntaly.extractRequestContext(mockReq, false); // No location resolution for demo
       console.log(`   X-Forwarded-For: "${testCase.xForwardedFor}"`);
       console.log(`   Extracted IP: "${context.ip}"`);
       console.log(`   Expected: "${testCase.expected}"`);
@@ -491,14 +497,14 @@ function demonstrateIPNormalization() {
         }
       };
       
-      const context = evntaly.extractRequestContext(mockReq, false); // No location resolution for demo
+      const context = await evntaly.extractRequestContext(mockReq, false); // No location resolution for demo
       console.log(`   Raw IP: "${testCase.rawIP}"`);
       console.log(`   Normalized IP: "${context.ip}"`);
       console.log(`   Expected: "${testCase.expected}"`);
       console.log(`   ✅ ${context.ip === testCase.expected ? 'Correctly normalized' : 'Normalization failed'}`);
     }
     console.log('');
-  });
+  }
   
   console.log('📋 Summary:');
   console.log('- IPv6-mapped IPv4 addresses (::ffff:x.x.x.x) are converted to IPv4 format');
@@ -511,19 +517,19 @@ function demonstrateIPNormalization() {
 // Run all demonstrations
 async function runAllDemos() {
   try {
-    demonstrateIPNormalization();
+    // await demonstrateIPNormalization();
     
     // demonstrateSingleton();
     
     // demonstrateVerboseLogging();
     
-    // demonstrateOSDetection();
+    // await demonstrateOSAndBrowserDetection();
     
     // demonstrateRequestContext();
     
     // await demonstrateLocationResolution();
     
-    // await sendEventsWithContext();
+    await sendEventsWithContext();
     
     // await sendEventsWithoutContext();
     

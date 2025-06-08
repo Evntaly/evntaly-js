@@ -19,6 +19,8 @@ export interface RequestContext {
   cfRay?: string;
   os?: string;
   osVersion?: string;
+  browser?: string;
+  browserVersion?: string;
   location?: {
     country?: string;
     countryCode?: string;
@@ -247,6 +249,115 @@ export class RequestContextExtractor {
   }
 
   /**
+   * Extract browser and version from user agent string.
+   * @param userAgent - The user agent string.
+   * @returns Object with browser name and version.
+   */
+  private static extractBrowserFromUserAgent(userAgent: string): { browser: string; version: string } {
+    if (!userAgent) return { browser: 'Unknown', version: 'Unknown' };
+
+    const ua = userAgent.toLowerCase();
+
+    // Chrome (must check before Safari as Chrome includes Safari in UA)
+    const chromeMatch = ua.match(/chrome\/(\d+(?:\.\d+)*)/);
+    if (chromeMatch && !ua.includes('edg') && !ua.includes('opr')) {
+      return { browser: 'Chrome', version: chromeMatch[1] };
+    }
+
+    // Microsoft Edge (Chromium-based)
+    const edgeMatch = ua.match(/edg\/(\d+(?:\.\d+)*)/);
+    if (edgeMatch) {
+      return { browser: 'Edge', version: edgeMatch[1] };
+    }
+
+    // Opera
+    const operaMatch = ua.match(/opr\/(\d+(?:\.\d+)*)/);
+    if (operaMatch) {
+      return { browser: 'Opera', version: operaMatch[1] };
+    }
+
+    // Opera (older versions)
+    const operaLegacyMatch = ua.match(/opera[\/\s](\d+(?:\.\d+)*)/);
+    if (operaLegacyMatch) {
+      return { browser: 'Opera', version: operaLegacyMatch[1] };
+    }
+
+    // Firefox
+    const firefoxMatch = ua.match(/firefox\/(\d+(?:\.\d+)*)/);
+    if (firefoxMatch) {
+      return { browser: 'Firefox', version: firefoxMatch[1] };
+    }
+
+    // Safari (check after Chrome/Edge as they include Safari in UA)
+    const safariMatch = ua.match(/version\/(\d+(?:\.\d+)*)/);
+    if (safariMatch && ua.includes('safari') && !ua.includes('chrome')) {
+      return { browser: 'Safari', version: safariMatch[1] };
+    }
+
+    // Internet Explorer
+    const ieMatch = ua.match(/(?:msie\s|trident.+?rv:)(\d+(?:\.\d+)*)/);
+    if (ieMatch) {
+      return { browser: 'Internet Explorer', version: ieMatch[1] };
+    }
+
+    // Samsung Internet Browser
+    const samsungMatch = ua.match(/samsungbrowser\/(\d+(?:\.\d+)*)/);
+    if (samsungMatch) {
+      return { browser: 'Samsung Internet', version: samsungMatch[1] };
+    }
+
+    // UC Browser
+    const ucMatch = ua.match(/ucbrowser\/(\d+(?:\.\d+)*)/);
+    if (ucMatch) {
+      return { browser: 'UC Browser', version: ucMatch[1] };
+    }
+
+    // Brave (harder to detect, often appears as Chrome)
+    if (ua.includes('brave')) {
+      return { browser: 'Brave', version: 'Unknown' };
+    }
+
+    // Vivaldi
+    const vivaldiMatch = ua.match(/vivaldi\/(\d+(?:\.\d+)*)/);
+    if (vivaldiMatch) {
+      return { browser: 'Vivaldi', version: vivaldiMatch[1] };
+    }
+
+    // Yandex Browser
+    const yandexMatch = ua.match(/yabrowser\/(\d+(?:\.\d+)*)/);
+    if (yandexMatch) {
+      return { browser: 'Yandex Browser', version: yandexMatch[1] };
+    }
+
+    // Mobile browsers
+    if (ua.includes('crios')) {
+      const criosMatch = ua.match(/crios\/(\d+(?:\.\d+)*)/);
+      return { browser: 'Chrome iOS', version: criosMatch ? criosMatch[1] : 'Unknown' };
+    }
+
+    if (ua.includes('fxios')) {
+      const fxiosMatch = ua.match(/fxios\/(\d+(?:\.\d+)*)/);
+      return { browser: 'Firefox iOS', version: fxiosMatch ? fxiosMatch[1] : 'Unknown' };
+    }
+
+    if (ua.includes('mobile') && ua.includes('safari')) {
+      const mobileSafariMatch = ua.match(/version\/(\d+(?:\.\d+)*)/);
+      return { browser: 'Mobile Safari', version: mobileSafariMatch ? mobileSafariMatch[1] : 'Unknown' };
+    }
+
+    // Generic fallbacks
+    if (ua.includes('webkit')) {
+      return { browser: 'WebKit', version: 'Unknown' };
+    }
+
+    if (ua.includes('gecko')) {
+      return { browser: 'Gecko', version: 'Unknown' };
+    }
+
+    return { browser: 'Unknown', version: 'Unknown' };
+  }
+
+  /**
    * Extract request context from Express/NestJS request object.
    * @param req - The request object.
    * @param resolveLocation - Whether to resolve IP location (default: true).
@@ -280,6 +391,13 @@ export class RequestContextExtractor {
         const osInfo = this.extractOSFromUserAgent(context.userAgent);
         context.os = osInfo.os;
         context.osVersion = osInfo.version;
+      }
+      
+      // Extract browser and version from user agent
+      if (context.userAgent) {
+        const browserInfo = this.extractBrowserFromUserAgent(context.userAgent);
+        context.browser = browserInfo.browser;
+        context.browserVersion = browserInfo.version;
       }
       
       // Extract forwarded headers

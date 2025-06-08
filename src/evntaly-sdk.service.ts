@@ -18,6 +18,7 @@ export interface EventContext {
 export class EvntalySDKService {
   private static instance: EvntalySDKService | null = null;
   private readonly BASE_URL = 'https://app.evntaly.com/prod';
+  // private readonly BASE_URL = 'http://localhost:3000';
 
   /**
    * Developer secret, used to authorize requests.
