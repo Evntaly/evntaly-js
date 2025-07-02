@@ -21,6 +21,7 @@ export interface RequestContext {
   osVersion?: string;
   browser?: string;
   browserVersion?: string;
+  deviceType?: string;
   location?: {
     country?: string;
     countryCode?: string;
@@ -358,6 +359,113 @@ export class RequestContextExtractor {
   }
 
   /**
+   * Extract device type from user agent string.
+   * @param userAgent - The user agent string.
+   * @returns Device type (Mobile, Tablet, Desktop, Smart TV, Gaming Console, Wearable, Unknown).
+   */
+  private static extractDeviceTypeFromUserAgent(userAgent: string): string {
+    if (!userAgent) return 'Unknown';
+
+    const ua = userAgent.toLowerCase();
+
+    // Gaming Consoles
+    if (ua.includes('playstation') || ua.includes('xbox') || ua.includes('nintendo')) {
+      return 'Gaming Console';
+    }
+
+    // Smart TVs
+    if (ua.includes('smart-tv') || 
+        ua.includes('smarttv') || 
+        ua.includes('webos') || 
+        ua.includes('tizen') || 
+        ua.includes('roku') || 
+        ua.includes('appletv') || 
+        ua.includes('googletv') || 
+        ua.includes('android tv')) {
+      return 'Smart TV';
+    }
+
+    // Wearables
+    if (ua.includes('watch') || 
+        ua.includes('wearable') || 
+        ua.includes('fitbit') || 
+        ua.includes('gear s')) {
+      return 'Wearable';
+    }
+
+    // Tablets (check before mobile as some tablets might match mobile patterns)
+    if (ua.includes('ipad')) {
+      return 'Tablet';
+    }
+    
+    // Android tablets - look for tablet keyword or large screen indicators
+    if (ua.includes('android') && 
+        (ua.includes('tablet') || 
+         !ua.includes('mobile') || 
+         ua.includes('nexus 7') || 
+         ua.includes('nexus 9') || 
+         ua.includes('nexus 10'))) {
+      return 'Tablet';
+    }
+
+    // Windows tablets
+    if (ua.includes('windows') && ua.includes('touch') && !ua.includes('phone')) {
+      return 'Tablet';
+    }
+
+    // Kindle tablets
+    if (ua.includes('kindle') && !ua.includes('mobile')) {
+      return 'Tablet';
+    }
+
+    // Mobile devices
+    if (ua.includes('mobile') || 
+        ua.includes('iphone') || 
+        ua.includes('ipod') || 
+        ua.includes('blackberry') || 
+        ua.includes('windows phone') || 
+        ua.includes('palm') || 
+        ua.includes('symbian') || 
+        ua.includes('nokia') || 
+        ua.includes('fennec') || 
+        ua.includes('opera mini') || 
+        ua.includes('opera mobi')) {
+      return 'Mobile';
+    }
+
+    // Android mobile (when mobile keyword is present)
+    if (ua.includes('android') && ua.includes('mobile')) {
+      return 'Mobile';
+    }
+
+    // Desktop/Laptop - check for desktop operating systems
+    if (ua.includes('windows') || 
+        ua.includes('macintosh') || 
+        ua.includes('mac os x') || 
+        ua.includes('linux') || 
+        ua.includes('ubuntu') || 
+        ua.includes('debian') || 
+        ua.includes('fedora') || 
+        ua.includes('centos') || 
+        ua.includes('freebsd') || 
+        ua.includes('openbsd')) {
+      return 'Desktop';
+    }
+
+    // Bots and crawlers
+    if (ua.includes('bot') || 
+        ua.includes('crawler') || 
+        ua.includes('spider') || 
+        ua.includes('scraper') || 
+        ua.includes('curl') || 
+        ua.includes('wget')) {
+      return 'Bot';
+    }
+
+    return 'Unknown';
+  }
+
+  /**
    * Extract request context from Express/NestJS request object.
    * @param req - The request object.
    * @param resolveLocation - Whether to resolve IP location (default: true).
@@ -398,6 +506,11 @@ export class RequestContextExtractor {
         const browserInfo = this.extractBrowserFromUserAgent(context.userAgent);
         context.browser = browserInfo.browser;
         context.browserVersion = browserInfo.version;
+      }
+      
+      // Extract device type from user agent
+      if (context.userAgent) {
+        context.deviceType = this.extractDeviceTypeFromUserAgent(context.userAgent);
       }
       
       // Extract forwarded headers

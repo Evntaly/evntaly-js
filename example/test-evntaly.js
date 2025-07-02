@@ -2,7 +2,7 @@ const { Evntaly } = require('evntaly-js');
 
 const evntaly = Evntaly();
 
-evntaly.init('d95cb3653ecd26dd', '10d4414bd47bf56315acbfe4ead0', { 
+evntaly.init('e12fb0ed7462c2fc', 'e712a7a7cacc1a77f1b416bdac3d', { 
   verbose: true  // Enable verbose logging
 });
 
@@ -65,8 +65,9 @@ function createMockRequest(options = {}) {
     ipad: 'Mozilla/5.0 (iPad; CPU OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Mobile/15E148 Safari/604.1'
   };
 
+  console.log('options.ip', options.ip);
   return {
-    ip: options.ip || '192.168.1.' + Math.floor(Math.random() * 255),
+    ip: options.ip,
     method: options.method || 'POST',
     originalUrl: options.originalUrl || '/api/events',
     headers: {
@@ -217,43 +218,77 @@ async function sendEventsWithContext() {
   
   const osUserAgents = [
     {
-      os: 'Windows',
-      version: '10/11',
-      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      ip: '197.135.93.110' // Google DNS - US
+      os: 'iOS',
+      version: '17.1',
+      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Mobile/15E148 Safari/604.1',
+      ip: '217.160.0.152', // Deutsche Telekom - Germany
+
     },
     {
-      os: 'macOS',
-      version: '10.15 (Catalina)',
-      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      ip: '197.135.93.110' // Cloudflare DNS - US
+      os: 'iOS',
+      version: '17.1',
+      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Mobile/15E148 Safari/604.1',
+      ip: '103.4.96.0', // NTT Communications - Japan
     },
     {
-      os: 'Android',
-      version: '13',
-      userAgent: 'Mozilla/5.0 (Linux; Android 13; SM-G998B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
-      ip: '197.135.93.110' // OpenDNS - US
-    }
+      os: 'iOS',
+      version: '17.1',
+      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Mobile/15E148 Safari/604.1',
+      ip: '103.4.96.0', // NTT Communications - Japan
+    },
+    {
+      os: 'iOS',
+      version: '17.1',
+      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Mobile/15E148 Safari/604.1',
+      ip: '8.8.8.8', // Google DNS - United States
+    },
+    {
+      os: 'iOS',
+      version: '17.1',
+      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Mobile/15E148 Safari/604.1',
+      ip: '142.250.185.142', // Google Canada - Canada
+    },
+    {
+      os: 'iOS',
+      version: '17.1',
+      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Mobile/15E148 Safari/604.1',
+      ip: '185.199.108.153', // GitHub UK - United Kingdom
+    },
+    {
+      os: 'iOS',
+      version: '17.1',
+      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Mobile/15E148 Safari/604.1',
+      ip: '203.208.60.1', // Google Australia - Australia
+    },
+    {
+      os: 'iOS',
+      version: '17.1',
+      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Mobile/15E148 Safari/604.1',
+      ip: '200.160.2.3', // Telefonica Brazil - Brazil
+    },
+    
   ];
   
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 10; i++) {
     const eventName = eventNames[Math.floor(Math.random() * eventNames.length)];
-    const userId = userIds[Math.floor(Math.random() * userIds.length)];
+    const userId = "0f6934fd-99c0-sd-2323dds2";
     const osConfig = osUserAgents[i];
 
     // Create a unique mock request for each event with different OS and IP
+    const countryCodes = ['US', 'CA', 'GB', 'DE', 'JP'];
     const mockReq = createMockRequest({
       ip: osConfig.ip,
       method: i % 2 === 0 ? 'POST' : 'GET',
       originalUrl: `/api/events/${eventName}`,
       userAgent: osConfig.userAgent,
       referer: `https://app.example.com/feature-${i}`,
-      cfIpCountry: ['US', 'CA', 'GB'][i % 3],
-      xCustomHeader: `session-${userId}-${i}`
+      cfIpCountry: countryCodes[i],
+      xCustomHeader: `session-${userId}-${i}`,
+      xForwardedFor: osConfig.ip,
     });
 
-    console.log(`📤 Sending event ${i + 1}/3: ${eventName} for user ${userId}`);
-    console.log(`🌐 Request IP: ${mockReq.ip}, Method: ${mockReq.method}, Country: ${mockReq.headers['cf-ipcountry']}`);
+    console.log(`📤 Sending event ${i + 1}/4: ${eventName} for user ${userId}`);
+    console.log(`🌐 Request IP: ${mockReq.ip} (${osConfig.country}), Method: ${mockReq.method}, OS: ${osConfig.os} ${osConfig.version}`);
 
     // Send event with request context and location resolution
     await evntaly.track({
@@ -280,7 +315,7 @@ async function sendEventsWithContext() {
       topic: 'TestingFullContext'
     }, mockReq); // Enable location resolution
     
-    console.log(`✅ Event ${i + 1}: ${eventName} sent successfully with full context for user ${userId}\n`);
+    console.log(`✅ Event ${i + 1}: ${eventName} sent successfully from ${osConfig.country} with full context for user ${userId}\n`);
   }
 }
 
